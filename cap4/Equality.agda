@@ -105,3 +105,37 @@ postulate
   ≡⟨⟩
     suc n + m
   ∎
+
+module ≤-Reasoning where
+  data _≤_ : ℕ → ℕ → Set where
+    z≤s : ∀ {n : ℕ} → zero ≤ n
+    s≤s : ∀ {m n : ℕ} → m ≤ n → suc m ≤ suc n
+
+  infix 4 _≤_
+
+  postulate
+    ≤-refl : ∀ {n : ℕ} → n ≤ n
+    ≤-trans : ∀ {m n p : ℕ} → m ≤ n → n ≤ p → m ≤ p
+    ≤-antisym : ∀ {m n : ℕ} → m ≤ n → n ≤ m → m ≡ n
+
+  infix  1 begin<_
+  infixr 2 _≤⟨⟩_ _≤⟨_⟩_
+  infix  3 _<∎
+
+  begin<_ : ∀ {x y : ℕ} → x ≤ y → x ≤ y
+  begin< x≤y = x≤y
+
+  _≤⟨⟩_ : ∀ (x : ℕ) {y : ℕ} → x ≤ y → x ≤ y
+  x ≤⟨⟩ x≤y = x≤y
+
+  _≤⟨_⟩_ : ∀ (x : ℕ) {y z : ℕ} → x ≤ y → y ≤ z → x ≤ z
+  x ≤⟨ x≤y ⟩ y≤z = ≤-trans x≤y y≤z
+
+  _<∎ : ∀ (x : ℕ) → x ≤ x
+  x <∎ = ≤-refl
+
+  +-monoˡ-≤ : ∀ (m n p : ℕ)
+    → m ≤ n
+      -------------
+    → m + p ≤ n + p
+  +-monoˡ-≤ m n p m≤n = {!!}
