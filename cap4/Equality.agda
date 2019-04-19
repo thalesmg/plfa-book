@@ -134,8 +134,51 @@ module ≤-Reasoning where
   _<∎ : ∀ (x : ℕ) → x ≤ x
   x <∎ = ≤-refl
 
+  ≤-suc : ∀ (m : ℕ)
+    → m ≤ suc m
+  ≤-suc zero = z≤s
+  ≤-suc (suc m) = s≤s (≤-suc m)
+
+  -- ≤-ident-l : ∀ (m : ℕ)
+  --   → m + zero ≤ m
+  -- ≤-ident-l m =
+  --   begin<
+  --     m + zero
+  --   ≤⟨⟩
+  --     m
+  --   <∎
+
+  +ʳ-≤-1 : ∀ (m p : ℕ)
+    → m ≤ m + p
+  +ʳ-≤-1 zero zero = z≤s
+  +ʳ-≤-1 (suc m) zero = s≤s (+ʳ-≤-1 m zero)
+  +ʳ-≤-1 zero (suc p) = z≤s
+  +ʳ-≤-1 (suc m) (suc p) = s≤s (+ʳ-≤-1 m (suc p))
+
+  +ʳ-≤-2 : ∀ (m p : ℕ)
+    → m ≤ p + m
+  +ʳ-≤-2 m zero = ≤-refl
+  +ʳ-≤-2 m (suc p) =
+    begin<
+      m
+    ≤⟨ +ʳ-≤-2 m p ⟩
+      p + m
+    ≤⟨ ≤-suc (p + m) ⟩
+      suc (p + m)
+    <∎
+
   +-monoˡ-≤ : ∀ (m n p : ℕ)
     → m ≤ n
       -------------
     → m + p ≤ n + p
-  +-monoˡ-≤ m n p m≤n = {!!}
+  +-monoˡ-≤ m n zero m≤n with m + zero | +-identity m | n + zero | +-identity n
+  ... | .m | refl | .n | refl  = m≤n
+  +-monoˡ-≤ m n (suc p) m≤n with m + suc p | +-suc m p | n + suc p | +-suc n p
+  ... | .(suc (m + p)) | refl | .(suc (n + p)) | refl = s≤s (+-monoˡ-≤ m n p m≤n)
+
+  +-mono-≤ : ∀ (m n p q : ℕ)
+    → m ≤ n
+    → p ≤ q
+      -------------
+    → m + p ≤ n + q
+  +-mono-≤ m n p q m≤n p≤q = {!!}
