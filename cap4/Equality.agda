@@ -139,14 +139,10 @@ module ≤-Reasoning where
   ≤-suc zero = z≤s
   ≤-suc (suc m) = s≤s (≤-suc m)
 
-  -- ≤-ident-l : ∀ (m : ℕ)
-  --   → m + zero ≤ m
-  -- ≤-ident-l m =
-  --   begin<
-  --     m + zero
-  --   ≤⟨⟩
-  --     m
-  --   <∎
+  ≤-refl-≡ : ∀ (m n : ℕ)
+    → m + n ≤ n + m
+  ≤-refl-≡ m n with m + n | +-comm m n
+  ... | .(n + m) | refl = ≤-refl
 
   +ʳ-≤-1 : ∀ (m p : ℕ)
     → m ≤ m + p
@@ -181,4 +177,39 @@ module ≤-Reasoning where
     → p ≤ q
       -------------
     → m + p ≤ n + q
-  +-mono-≤ m n p q m≤n p≤q = {!!}
+  +-mono-≤ m n p q m≤n p≤q =
+    begin<
+      m + p
+    ≤⟨ +-monoˡ-≤ m n p m≤n ⟩
+      n + p
+    ≤⟨ ≤-refl-≡ n p ⟩
+      p + n
+    ≤⟨ +-monoˡ-≤ p q n p≤q ⟩
+      q + n
+    ≤⟨ ≤-refl-≡ q n ⟩
+      n + q
+    <∎
+
+data even : ℕ → Set
+data odd  : ℕ → Set
+
+data even where
+
+  even-zero : even zero
+
+  even-suc : ∀ {n : ℕ}
+    → odd n
+      ------------
+    → even (suc n)
+
+data odd where
+  odd-suc : ∀ {n : ℕ}
+    → even n
+      -----------
+    → odd (suc n)
+
+even-comm : ∀ (m n : ℕ)
+  → even (m + n)
+    ------------
+  → even (n + m)
+even-comm m n ev = {!!}
