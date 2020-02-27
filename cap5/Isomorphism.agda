@@ -97,10 +97,10 @@ module ≃-Reasoning where
     → A ≃ B
   ≃-begin A≃B = A≃B
 
-  _≃-∎ : ∀ {A : Set}
+  _≃-∎ : ∀ (A : Set)
       -----
     → A ≃ A
-  _≃-∎ = ≃-refl
+  A ≃-∎ = ≃-refl
 
   _≃⟨_⟩_ : ∀ (A : Set) {B C : Set}
     → A ≃ B
