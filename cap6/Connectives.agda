@@ -102,3 +102,81 @@ data _⊎_ (A B : Set) : Set where
       B
     ----
     → A ⊎ B
+
+case-⊎ : ∀ {A B C : Set}
+  → (A → C)
+  → (B → C)
+  → A ⊎ B
+    --------
+  → C
+case-⊎ f g (inj₁ x) = f x
+case-⊎ f g (inj₂ y) = g y
+
+η-⊎ : ∀ {A B : Set} (w : A ⊎ B) → case-⊎ inj₁ inj₂ w ≡ w
+η-⊎ (inj₁ x) = refl
+η-⊎ (inj₂ x) = refl
+
+uniq-⊎ : ∀ {A B C : Set} (h : A ⊎ B → C) (w : A ⊎ B) → case-⊎ (h ∘ inj₁) (h ∘ inj₂) w ≡ h w
+uniq-⊎ h (inj₁ x) = refl
+uniq-⊎ h (inj₂ y) = refl
+
+infixr 1 _⊎_
+
+⊎-comm : ∀ {A B : Set} → A ⊎ B ≃ B ⊎ A
+⊎-comm =
+  record
+    { to = λ{ (inj₁ x) → inj₂ x; (inj₂ y) → inj₁ y }
+    ; from = λ{ (inj₁ y) → inj₂ y; (inj₂ x) → inj₁ x }
+    ; to∘from = λ{ (inj₁ y) → refl; (inj₂ x) → refl }
+    ; from∘to = λ{ (inj₁ x) → refl; (inj₂ y) → refl }
+    }
+
+⊎-assoc : ∀ {A B C : Set} → A ⊎ (B ⊎ C) ≃ (A ⊎ B) ⊎ C
+⊎-assoc =
+  record
+    { to = λ{ (inj₁ a) → inj₁ (inj₁ a); (inj₂ (inj₁ b)) → inj₁ (inj₂ b); (inj₂ (inj₂ c)) → inj₂ c }
+    ; from = λ{ (inj₂ c) → inj₂ (inj₂ c); (inj₁ (inj₁ a)) → inj₁ a; (inj₁ (inj₂ b)) → inj₂ (inj₁ b) }
+    ; to∘from = λ{ (inj₁ (inj₁ a)) → refl; (inj₁ (inj₂ b)) → refl; (inj₂ c) → refl }
+    ; from∘to = λ{ (inj₁ a) → refl; (inj₂ (inj₁ b)) → refl; (inj₂ (inj₂ c)) → refl }
+    }
+
+data ⊥ : Set where
+  -- nada!
+
+⊥-elim : ∀ {A : Set}
+  → ⊥
+    ---
+  → A
+⊥-elim ()
+
+uniq-⊥ : ∀ {C : Set} (h : ⊥ → C) (w : ⊥) → ⊥-elim w ≡ h w
+uniq-⊥ h ()
+
+⊥-count : ⊥ → ℕ
+⊥-count ()
+
+⊥-identityˡ : ∀ {A : Set} → ⊥ ⊎ A ≃ A
+⊥-identityˡ =
+  record
+    { to = λ{ (inj₂ a) → a }
+    ; from = λ{ a → inj₂ a }
+    ; from∘to = λ{ (inj₂ a) → refl }
+    ; to∘from = λ{ a → refl }
+    }
+
+⊥-identityʳ : ∀ {A : Set} → A ⊎ ⊥ ≃ A
+⊥-identityʳ {A} =
+  ≃-begin
+    (A ⊎ ⊥)
+  ≃⟨ ⊎-comm ⟩
+    (⊥ ⊎ A)
+  ≃⟨ ⊥-identityˡ ⟩
+    A
+  ≃-∎
+
+→-elim : ∀ {A B : Set}
+  → (A → B)
+  → A
+    -------
+  → B
+→-elim L M = L M
