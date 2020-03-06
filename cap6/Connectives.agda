@@ -180,3 +180,43 @@ uniq-⊥ h ()
     -------
   → B
 →-elim L M = L M
+
+η-→ : ∀ {A B : Set} (f : A → B) → (λ (x : A) → f x) ≡ f
+η-→ f = refl
+
+data Tri : Set where
+  aa : Tri
+  bb : Tri
+  cc : Tri
+
+data Bool : Set where
+  true : Bool
+  false : Bool
+
+→-count : (Bool → Tri) → ℕ
+→-count f with f true | f false
+...          | aa     | aa      =   1
+...          | aa     | bb      =   2
+...          | aa     | cc      =   3
+...          | bb     | aa      =   4
+...          | bb     | bb      =   5
+...          | bb     | cc      =   6
+...          | cc     | aa      =   7
+...          | cc     | bb      =   8
+...          | cc     | cc      =   9
+
+currying : ∀ {A B C : Set} → (A → B → C) ≃ (A × B → C)
+currying =
+  record
+    { to = λ{ f → λ{ ⟨ a , b ⟩ → f a b } }
+    ; from = λ{ f → λ{ a b → f ⟨ a , b ⟩ } }
+    ; from∘to = λ{ f → refl }
+    ; to∘from = λ{ g → extensionality λ{ ⟨ x , y ⟩ → refl } }
+    }
+
+→-distrib-⊎ : ∀ {A B C : Set} → (A ⊎ B → C) ≃ ((A → C) ⊎ (B → C))
+→-distrib-⊎ =
+  record
+    { to = λ{ f → ⟨ f ∘ inj₁ , f ∘ inj₂ ⟩ }
+    ; from = λ{ ⟨ f , g ⟩ → λ{ (inj₁ a) → f a; (inj₂ b) → g b } }
+    }
