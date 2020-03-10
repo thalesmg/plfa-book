@@ -214,9 +214,35 @@ currying =
     ; to∘from = λ{ g → extensionality λ{ ⟨ x , y ⟩ → refl } }
     }
 
-→-distrib-⊎ : ∀ {A B C : Set} → (A ⊎ B → C) ≃ ((A → C) ⊎ (B → C))
+→-distrib-⊎ : ∀ {A B C : Set} → (A ⊎ B → C) ≃ ((A → C) × (B → C))
 →-distrib-⊎ =
   record
     { to = λ{ f → ⟨ f ∘ inj₁ , f ∘ inj₂ ⟩ }
     ; from = λ{ ⟨ f , g ⟩ → λ{ (inj₁ a) → f a; (inj₂ b) → g b } }
+    ; to∘from = λ{ ⟨ f , g ⟩ → refl }
+    ; from∘to = λ{ f → extensionality  λ{ (inj₁ x) → refl; (inj₂ y) → refl }}
     }
+
+→-distrib-× : ∀ {A B C : Set} → (A → B × C) ≃ (A → B) × (A → C)
+→-distrib-× =
+  record
+    { to = λ { f → ⟨ proj₁ ∘ f , proj₂ ∘ f ⟩ }
+    ; from =  λ{ ⟨ f , g ⟩ →  λ{ x → ⟨ f x , g x ⟩ }}
+    ; to∘from = λ{ ⟨ f , g ⟩ → refl }
+    ; from∘to = λ{ f → extensionality λ{ x → η-× (f x) } }
+    }
+
+×-distrib-⊎ : ∀ { A B C : Set } → (A ⊎ B) × C ≃ (A × C) ⊎ (B × C)
+×-distrib-⊎ =
+  record
+    { to = λ { ⟨ inj₁ a , c ⟩ → inj₁ ⟨ a , c ⟩
+             ; ⟨ inj₂ b , c ⟩ → inj₂ ⟨ b , c ⟩ }
+    ; from = λ { (inj₁ ⟨ a , c ⟩) → ⟨ inj₁ a , c ⟩
+               ; (inj₂ ⟨ b , c ⟩) → ⟨ inj₂ b , c ⟩ }
+    ; to∘from = λ { (inj₁ ⟨ a , c ⟩) → refl
+                  ; (inj₂ ⟨ b , c ⟩) → refl }
+    ; from∘to = λ { ⟨ inj₁ a , c ⟩ → refl
+                  ; ⟨ inj₂ b , c ⟩ → refl }
+    }
+
+⊎-distrib-× : ∀ { A B C : Set } → (A × B) ⊎ C ≲ (A ⊎ C) × (B ⊎ C)
