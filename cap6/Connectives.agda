@@ -246,3 +246,31 @@ currying =
     }
 
 ⊎-distrib-× : ∀ { A B C : Set } → (A × B) ⊎ C ≲ (A ⊎ C) × (B ⊎ C)
+⊎-distrib-× =
+  record
+    { to = λ{ (inj₁ ⟨ a , b ⟩) → ⟨ inj₁ a , inj₁ b ⟩
+           ;  (inj₂ c) → ⟨ inj₂ c , inj₂ c ⟩
+           }
+    ; from = λ{ ⟨ inj₁ a , inj₁ b ⟩ → inj₁ ⟨ a , b ⟩
+             ;  ⟨ inj₁ a , inj₂ c ⟩ → inj₂ c
+             ;  ⟨ inj₂ c1 , inj₂ c2 ⟩ → inj₂ c1
+             ;  ⟨ inj₂ c , inj₁ b ⟩ → inj₂ c
+             }
+    ; from∘to = λ{ (inj₁ ⟨ a , b ⟩) → refl
+                ;  (inj₂ c) → refl
+                }
+    }
+
+⊎-weak-× : ∀ { A B C : Set } → (A ⊎ B) × C → A ⊎ (B × C)
+⊎-weak-× ⟨ inj₁ a , c ⟩ = inj₁ a
+⊎-weak-× ⟨ inj₂ b , c ⟩ = inj₂ ⟨ b , c ⟩
+
+⊎×-implies-×⊎ : ∀ { A B C D : Set } → (A × B) ⊎ (C × D) → (A ⊎ C) × (B ⊎ D)
+⊎×-implies-×⊎ (inj₁ ⟨ a , b ⟩) = ⟨ inj₁ a , inj₁ b ⟩
+⊎×-implies-×⊎ (inj₂ ⟨ c , d ⟩) = ⟨ inj₂ c , inj₂ d ⟩
+
+{-
+the converse to ⊎×-implies-×⊎ is false
+
+counterexample: ⟨ inj₂ c , inj₁ b ⟩
+-}
