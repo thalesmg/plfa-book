@@ -147,7 +147,9 @@ Classical =
            ; from = λ{ f → em }
            }
   , ⟨ record { to = λ{ f → λ{ k → f λ{¬a → ¬a (⊥-elim (¬-elim ¬a (k λ{ a → ⊥-elim (¬-elim ¬a a) })))} } }
-             ; from = λ{ f → {!!}}
+             -- ; from = λ{ f → λ{ ¬¬a → f (⊥-elim (¬¬a λ{ a → {!!} })) } }
+             -- ; from = λ{ f → λ{ ¬¬a → f λ{ g → ⊥-elim (¬-elim ¬¬a λ{ a → {!!} }) } } }
+             ; from = λ{ f → {!!} }
              }
     , ⟨ record { to = {!!}
                ; from = {!!}
