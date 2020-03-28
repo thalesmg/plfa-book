@@ -10,8 +10,9 @@ open import plfa.cap5.Isomorphism using (_≃_; extensionality)
 open import plfa.cap3.Relations using (_<_; s<s; z<s)
 import Relation.Binary.PropositionalEquality as Eq
 open Eq using (cong)
-open import plfa.cap6.Connectives using (→-distrib-⊎; _⊎_; inj₁; inj₂; _×_; ⟨_,_⟩)
+open import plfa.cap6.Connectives using (→-distrib-⊎; _⊎_; inj₁; inj₂; _×_; ⟨_,_⟩; proj₁; proj₂; case-⊎)
 open import plfa.cap5.Isomorphism using (_≲_; _⇔_)
+open import Function using (_∘_)
 
 ¬_ : Set → Set
 ¬ A = A → ⊥
@@ -134,32 +135,35 @@ postulate
 em-irrefutable : ∀ {A : Set} → ¬ ¬ (A ⊎ ¬ A)
 em-irrefutable ¬em = ¬em (inj₂ λ{ a → ¬em (inj₁ a)})
 
-Classical : ∀ {A B : Set}
-  → (A ⊎ ¬ A) ⇔ (¬ ¬ A → A)
-  × (¬ ¬ A → A) ⇔ (((A → B) → A) → A)
-  × (((A → B) → A) → A) ⇔ ((A → B) → ¬ A ⊎ B)
-  × (A ⊎ ¬ A) ⇔ (¬ (¬ A × ¬ B) → A ⊎ B)
-Classical =
-  ⟨ record { to = λ{ (inj₁ a)  →  λ{ ¬¬a → a }
-                   ; (inj₂ ¬a) →  λ{ ¬¬a → ⊥-elim (¬-elim ¬¬a ¬a) }
-                   }
-           -- ; from = λ{ f → inj₂ (¬¬¬-elim (contraposition f λ{ a → {!f (¬¬-intro a)!} })) }
-           ; from = λ{ f → em }
-           }
-  , ⟨ record { to = λ{ f → λ{ k → f λ{¬a → ¬a (⊥-elim (¬-elim ¬a (k λ{ a → ⊥-elim (¬-elim ¬a a) })))} } }
-             -- ; from = λ{ f → λ{ ¬¬a → f (⊥-elim (¬¬a λ{ a → {!!} })) } }
-             -- ; from = λ{ f → λ{ ¬¬a → f λ{ g → ⊥-elim (¬-elim ¬¬a λ{ a → {!!} }) } } }
-             ; from = λ{ f → {!!} }
-             }
-    , ⟨ record { to = {!!}
-               ; from = {!!}
-               }
-      , record { to = {!!}
-               ; from = {!!}
-               }
-      ⟩
-    ⟩
-  ⟩
+-- had to consult https://github.com/cruhland/plfa/blob/master/plfa/Negation.agda .... 🙈
+
+-- Classical : ∀ {A B : Set}
+--   → (A ⊎ ¬ A) ⇔ (¬ ¬ A → A)
+--   × (¬ ¬ A → A) ⇔ (((A → B) → A) → A)
+--   × (((A → B) → A) → A) ⇔ ((A → B) → ¬ A ⊎ B)
+--   × (A ⊎ ¬ A) ⇔ (¬ (¬ A × ¬ B) → A ⊎ B)
+-- Classical =
+--   ⟨ record { to = λ{ (inj₁ a)  →  λ{ ¬¬a → a }
+--                    ; (inj₂ ¬a) →  λ{ ¬¬a → ⊥-elim (¬-elim ¬¬a ¬a) }
+--                    }
+--            -- ; from = λ{ f → inj₂ (¬¬¬-elim (contraposition f λ{ a → {!f (¬¬-intro a)!} })) }
+--            ; from = λ{ f → em }
+--            }
+--   , ⟨ record { to = λ{ f → λ{ k → f λ{¬a → ¬a (⊥-elim (¬-elim ¬a (k λ{ a → ⊥-elim (¬-elim ¬a a) })))} } }
+--              -- ; from = λ{ f → λ{ ¬¬a → f (⊥-elim (¬¬a λ{ a → {!!} })) } }
+--              -- ; from = λ{ f → λ{ ¬¬a → f λ{ g → ⊥-elim (¬-elim ¬¬a λ{ a → {!!} }) } } }
+--              ; from = λ{ f → {!!} }
+--              }
+--     , ⟨ record { to = {!!}
+--                ; from = {!!}
+--                }
+--       , record { to = {!!}
+--                ; from = {!!}
+--                }
+--       ⟩
+--     ⟩
+--   ⟩
+
 -- Excluded middle → Double Negation Elimination
 em→dne : ∀ {A : Set} → (A ⊎ ¬ A) → (¬ ¬ A → A)
 em→dne (inj₁ a) ¬¬a = a
@@ -181,8 +185,46 @@ em→iad : ∀ {A B : Set} → (A ⊎ ¬ A) → ((A → B) → ¬ A ⊎ B)
 em→iad (inj₁  a) a→b = inj₂ (a→b a)
 em→iad (inj₂ ¬a) a→b = inj₁ ¬a
 
+-- Excluded middle → De Morgan
+-- em→dm : ∀ {A B : Set} → (A ⊎ ¬ A) → (¬ (¬ A × ¬ B) → A ⊎ B)
+-- em→dm (inj₁  a) ¬disj = inj₁ a
+-- em→dm (inj₂ ¬a) ¬disj = inj₂ (⊥-elim (¬disj ⟨ ¬a , (λ{ b → {!!}}) ⟩))
+
+em→dm : ({A : Set} → (A ⊎ ¬ A)) → {A B : Set} → ¬ (¬ A × ¬ B) → A ⊎ B
+em→dm em {A} {B} dm
+ with em {A}  | em {B}
+... | inj₁ a  | emb     = inj₁ a
+... | inj₂ ¬a | inj₁ b  = inj₂ b
+... | inj₂ ¬a | inj₂ ¬b = ⊥-elim (dm ⟨ ¬a , ¬b ⟩)
+
+-- 🙈
+iad→em : ({A B : Set} → (A → B) → ¬ A ⊎ B) → {A : Set} → (A ⊎ ¬ A)
+iad→em _ = em
+
 -- Implication as disjunction → De Morgan
-iad→dm : ∀ {A B : Set} → ((A → B) → ¬ A ⊎ B) → (¬ (¬ A × ¬ B) → A ⊎ B)
-iad→dm iad ¬disj = ⊥-elim (¬disj ⟨ (λ{ a → ¬disj {!!} })
-                                  , (λ{ b → {!!} })
-                                  ⟩)
+iad→dm : ({A B : Set} → (A → B) → ¬ A ⊎ B) → {A B : Set} → (¬ (¬ A × ¬ B) → A ⊎ B)
+iad→dm = em→dm ∘ iad→em
+
+Stable : Set → Set
+Stable A = ¬ ¬ A → A
+
+-- ¬stable : ∀{A : Set}
+--   → ¬ A
+--     ---------
+--   → Stable (¬ A)
+-- ¬stable ¬a = ¬¬¬-elim
+
+-- ×-stable : ∀ {A B : Set}
+--   → Stable A × Stable B
+--     --------------------
+--   → Stable (A × B)
+-- ×-stable ⟨ sa , sb ⟩ = λ{ ¬¬× → {!!} }
+
+¬-Stable : {A : Set} → Stable (¬ A)
+¬-Stable = ¬¬¬-elim
+
+×-Stable : {A B : Set} → Stable A → Stable B → Stable (A × B)
+×-Stable ¬¬a→a ¬¬b→b ¬¬ab = ⟨ aPrf , bPrf ⟩
+  where
+    aPrf = ¬¬a→a λ{ ¬a → ¬¬ab λ{ ⟨ a , b ⟩ → ¬a a } }
+    bPrf = ¬¬b→b λ{ ¬b → ¬¬ab λ{ ⟨ a , b ⟩ → ¬b b}}
