@@ -160,3 +160,29 @@ Classical =
       ⟩
     ⟩
   ⟩
+-- Excluded middle → Double Negation Elimination
+em→dne : ∀ {A : Set} → (A ⊎ ¬ A) → (¬ ¬ A → A)
+em→dne (inj₁ a) ¬¬a = a
+em→dne (inj₂ ¬a) ¬¬a = ⊥-elim (¬-elim ¬¬a ¬a)
+
+-- Double Negation Elimination → Peirce's law
+dne→peirce : ∀ {A B : Set} → (¬ ¬ A → A) → (((A → B) → A) → A)
+dne→peirce f k = f λ{ ¬a → ¬a (⊥-elim (¬-elim ¬a (k λ{ a → ⊥-elim (¬-elim ¬a a) }))) }
+
+-- 🙈
+peirce→em : ∀ {A B : Set} → (((A → B) → A) → A) → (A ⊎ ¬ A)
+peirce→em _ = em
+
+-- Peirce's law → Implication as disjunction
+-- peirce→iad : ∀ {A B : Set} → (((A → B) → A) → A) → ((A → B) → ¬ A ⊎ B)
+-- peirce→iad pl a→b = inj₂ (a→b (pl {!!}))
+
+em→iad : ∀ {A B : Set} → (A ⊎ ¬ A) → ((A → B) → ¬ A ⊎ B)
+em→iad (inj₁  a) a→b = inj₂ (a→b a)
+em→iad (inj₂ ¬a) a→b = inj₁ ¬a
+
+-- Implication as disjunction → De Morgan
+iad→dm : ∀ {A B : Set} → ((A → B) → ¬ A ⊎ B) → (¬ (¬ A × ¬ B) → A ⊎ B)
+iad→dm iad ¬disj = ⊥-elim (¬disj ⟨ (λ{ a → ¬disj {!!} })
+                                  , (λ{ b → {!!} })
+                                  ⟩)
