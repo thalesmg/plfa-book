@@ -5,7 +5,7 @@ open Eq using (_≡_; refl)
 open import Data.Nat using (ℕ; zero; suc; _+_; _*_)
 open import Relation.Nullary using (¬_)
 open import Data.Product using (_×_; proj₁; proj₂) renaming (_,_ to ⟨_,_⟩)
-open import Data.Sum using (_⊎_)
+open import Data.Sum using (_⊎_; inj₁; inj₂) renaming ([_,_] to case-⊎)
 open import plfa.cap5.Isomorphism using (_≃_; extensionality)
 
 ∀-elim : ∀ {A : Set} {B : A → Set}
@@ -25,4 +25,11 @@ open import plfa.cap5.Isomorphism using (_≃_; extensionality)
     ; to∘from = λ{ x → refl }
     }
 
--- ⊎∀-implies-∀⊎
+⊎∀-implies-∀⊎ : ∀ {A : Set} {B C : A → Set} →
+  (∀ (x : A) → B x) ⊎ (∀ (x : A) → C x) → ∀ (x : A) → (B x) ⊎ (C x)
+⊎∀-implies-∀⊎ (inj₁ x→Bx) x = inj₁ (x→Bx x)
+⊎∀-implies-∀⊎ (inj₂ x→Cx) x = inj₂ (x→Cx x)
+
+∀⊎-implies-⊎∀ : ∀ {A : Set} {B C : A → Set} →
+  (∀ (x : A) → (B x) ⊎ (C x)) → (∀ (x : A) → B x) ⊎ (∀ (x : A) → C x)
+∀⊎-implies-⊎∀ ∀⊎ = {!!}
