@@ -2,7 +2,9 @@ module plfa.cap8.Quantifiers where
 
 import Relation.Binary.PropositionalEquality as Eq
 open Eq using (_≡_; refl)
+open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; _≡⟨_⟩_; _∎)
 open import Data.Nat using (ℕ; zero; suc; _+_; _*_)
+open import Data.Nat.Properties using (+-identityʳ; +-assoc)
 open import Relation.Nullary using (¬_)
 open import Data.Product using (_×_; proj₁; proj₂) renaming (_,_ to ⟨⟨_,_⟩⟩)
 open import Data.Sum using (_⊎_; inj₁; inj₂) renaming ([_,_] to case-⊎)
@@ -185,4 +187,9 @@ odd-∃ (odd-suc e) with even-∃ e
 ∃-odd'  : ∀ {n : ℕ} → ∃[ m ] (2 * m + 1 ≡ n) →  odd n
 
 ∃-even' ⟨ zero , refl ⟩ = even-zero
-∃-even' ⟨ suc x , refl ⟩ = even-suc (∃-odd' ⟨ x , {!!} ⟩)
+∃-even' ⟨ suc x , refl ⟩ rewrite +-identityʳ x = even-suc (∃-odd' ⟨ x , {!!} ⟩)
+  where
+    prf : x + suc x ≡ x + (x + zero) + 1
+    prf = begin
+      x + suc x
+    ∎
