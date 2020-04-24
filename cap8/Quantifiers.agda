@@ -1,10 +1,10 @@
 module plfa.cap8.Quantifiers where
 
 import Relation.Binary.PropositionalEquality as Eq
-open Eq using (_≡_; refl)
+open Eq using (_≡_; refl; cong)
 open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; _≡⟨_⟩_; _∎)
 open import Data.Nat using (ℕ; zero; suc; _+_; _*_)
-open import Data.Nat.Properties using (+-identityʳ; +-assoc)
+open import Data.Nat.Properties using (+-identityʳ; +-assoc; +-comm)
 open import Relation.Nullary using (¬_)
 open import Data.Product using (_×_; proj₁; proj₂) renaming (_,_ to ⟨⟨_,_⟩⟩)
 open import Data.Sum using (_⊎_; inj₁; inj₂) renaming ([_,_] to case-⊎)
@@ -183,13 +183,35 @@ odd-∃ (odd-suc e) with even-∃ e
 
 -- Exercise : ∃-even-odd
 
+sucx≡x+1 : ∀ {x : ℕ} → suc x ≡ x + 1
+sucx≡x+1 = {!!}
+
+lemma2 : ∀ {x : ℕ} → suc (x + zero) ≡ (x + zero) + 1
+lemma2 = {!!}
+
+lemma1 : ∀ {x : ℕ} → x + suc (x + zero) ≡ x + (x + zero) + 1
+lemma1 = {!!}
+
 ∃-even' : ∀ {n : ℕ} → ∃[ m ] (    2 * m ≡ n) → even n
 ∃-odd'  : ∀ {n : ℕ} → ∃[ m ] (2 * m + 1 ≡ n) →  odd n
 
 ∃-even' ⟨ zero , refl ⟩ = even-zero
-∃-even' ⟨ suc x , refl ⟩ rewrite +-identityʳ x = even-suc (∃-odd' ⟨ x , {!!} ⟩)
-  where
-    prf : x + suc x ≡ x + (x + zero) + 1
-    prf = begin
-      x + suc x
-    ∎
+∃-even' ⟨ suc x , prf ⟩ = {!!}
+
+  -- where
+  --   2x+1 : x +
+  --   prf : x + suc x ≡ x + (x + zero) + 1
+  --   prf =
+  --     begin
+  --       x + suc x
+  --     ≡⟨⟩
+  --       x + (1 + x)
+  --     ≡⟨ +-comm x (1 + x) ⟩
+  --       (1 + x) + x
+  --     ≡⟨ cong (λ{l → l + x}) (+-comm x 1) ⟩
+  --       x + 1 + x
+  --     ≡⟨ +-comm (1 + x) x ⟩
+  --       x + (x + 1)
+  --     ≡⟨ +-identityʳ x ⟩
+  --       x + (x + zero) + 1
+  --     ∎
