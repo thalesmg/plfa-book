@@ -184,19 +184,27 @@ odd-∃ (odd-suc e) with even-∃ e
 -- Exercise : ∃-even-odd
 
 sucx≡x+1 : ∀ {x : ℕ} → suc x ≡ x + 1
-sucx≡x+1 = {!!}
+sucx≡x+1 {x} rewrite +-comm x 1 = refl
 
 lemma2 : ∀ {x : ℕ} → suc (x + zero) ≡ (x + zero) + 1
-lemma2 = {!!}
+lemma2 {x} rewrite +-comm (x + zero) 1 = refl
 
-lemma1 : ∀ {x : ℕ} → x + suc (x + zero) ≡ x + (x + zero) + 1
-lemma1 = {!!}
+lemma1 : ∀ {x : ℕ} → x + suc (x + zero) ≡ 2 * x + 1
+lemma1 {x} rewrite +-assoc x zero 1
+                 | lemma2 {x}
+                 | +-assoc x 0 1
+                 | +-identityʳ x
+                 | +-assoc x x 1 = refl
 
 ∃-even' : ∀ {n : ℕ} → ∃[ m ] (    2 * m ≡ n) → even n
 ∃-odd'  : ∀ {n : ℕ} → ∃[ m ] (2 * m + 1 ≡ n) →  odd n
 
 ∃-even' ⟨ zero , refl ⟩ = even-zero
-∃-even' ⟨ suc x , prf ⟩ = {!!}
+∃-even' ⟨ suc x , refl ⟩ rewrite lemma1 {x} = even-suc (∃-odd' ⟨ x , refl ⟩)
+
+∃-odd' ⟨ zero , refl ⟩ = odd-suc even-zero
+∃-odd' ⟨ suc x , refl ⟩ = odd-suc (∃-even' {!!})
+
 
   -- where
   --   2x+1 : x +
