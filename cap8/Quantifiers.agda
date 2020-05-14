@@ -186,6 +186,17 @@ odd-∃ (odd-suc e) with even-∃ e
 sucx≡x+1 : ∀ {x : ℕ} → suc x ≡ x + 1
 sucx≡x+1 {x} rewrite +-comm x 1 = refl
 
+lemma6 : ∀ {m : ℕ} → m + (m + 0) + 1 ≡ 1 + 2 * m
+lemma6 {m} rewrite +-identityʳ m
+                 | +-assoc m m 1
+                 | +-comm m 1
+                 | +-comm m (suc m) = refl
+
+lemma5 : ∀ {m : ℕ} → m + suc (m + 0) ≡ 2 * m + 1
+lemma5 {m} rewrite +-identityʳ m
+                 | +-comm 1 m
+                 | +-assoc m m 1 = refl
+
 lemma4 : ∀ {m : ℕ} → m + (m + 0) + 1 ≡ m + m + 1
 lemma4 {m} rewrite +-identityʳ m = refl
 
@@ -207,7 +218,11 @@ lemma1 {x} rewrite +-assoc x zero 1
 ∃-odd'  : ∀ {n : ℕ} → ∃[ m ] (2 * m + 1 ≡ n) →  odd n
 
 ∃-even' ⟨ zero , refl ⟩ = even-zero
-∃-even' ⟨ suc m , refl ⟩ rewrite lemma4 {m} = even-suc {!!}
+∃-even' ⟨ suc m , refl ⟩ rewrite lemma4 {m}
+                              | lemma5 {m}
+                              | +-comm m ((m + 0) + 1)
+                              | lemma6 {m}
+                              | +-identityʳ m = even-suc (odd-suc {!!})
 -- ∃-even' ⟨ suc x , refl ⟩ rewrite lemma1 {x} = even-suc (∃-odd' ⟨ x , refl ⟩)
 -- ∃-even' ⟨ suc x , prf ⟩ rewrite lemma1 {x} = even-suc (∃-odd' {!!})
 
