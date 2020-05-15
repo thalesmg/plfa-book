@@ -200,9 +200,9 @@ lemma5 {m} rewrite +-identityʳ m
 lemma4 : ∀ {m : ℕ} → m + (m + 0) + 1 ≡ m + m + 1
 lemma4 {m} rewrite +-identityʳ m = refl
 
-lemma3 : ∀ {m : ℕ} → m + (m + 0) + 1 + 1 ≡ 2 * (m + 1)
-lemma3 {m} rewrite +-identityʳ m
-                 | +-identityʳ (m + 1) = {!!}
+lemma3 : ∀ (m : ℕ) → even (m + m)
+lemma3 zero = even-zero
+lemma3 (suc m) rewrite +-comm m (suc m) = even-suc (odd-suc (lemma3 m))
 
 lemma2 : ∀ {x : ℕ} → suc (x + zero) ≡ (x + zero) + 1
 lemma2 {x} rewrite +-comm (x + zero) 1 = refl
@@ -222,13 +222,7 @@ lemma1 {x} rewrite +-assoc x zero 1
                               | lemma5 {m}
                               | +-comm m ((m + 0) + 1)
                               | lemma6 {m}
-                              | +-identityʳ m = even-suc (odd-suc {!!})
--- ∃-even' ⟨ suc x , refl ⟩ rewrite lemma1 {x} = even-suc (∃-odd' ⟨ x , refl ⟩)
--- ∃-even' ⟨ suc x , prf ⟩ rewrite lemma1 {x} = even-suc (∃-odd' {!!})
+                              | +-identityʳ m = even-suc (odd-suc (lemma3 m))
 
 ∃-odd' ⟨ zero , refl ⟩ = odd-suc even-zero
 ∃-odd' ⟨ suc m , refl ⟩ rewrite +-comm (m + suc (m + zero)) 1 = odd-suc (∃-even' ⟨ suc m , refl ⟩)
--- ∃-odd' ⟨ suc m , refl ⟩ rewrite lemma1 {m}
---                              | +-identityʳ m
---                              | +-comm (m + m + 1) 1
---                              | +-identityʳ m = odd-suc (even-suc (∃-odd' ⟨ m , lemma4 {m} ⟩))
