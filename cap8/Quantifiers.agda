@@ -9,6 +9,7 @@ open import Relation.Nullary using (¬_)
 open import Data.Product using (_×_; proj₁; proj₂) renaming (_,_ to ⟨⟨_,_⟩⟩)
 open import Data.Sum using (_⊎_; inj₁; inj₂) renaming ([_,_] to case-⊎)
 open import plfa.cap5.Isomorphism using (_≃_; extensionality)
+open import plfa.cap3.Relations using (_≤_; z≤s; s≤s)
 
 ∀-elim : ∀ {A : Set} {B : A → Set}
   → (L : ∀ (x : A) → B x)
@@ -226,3 +227,22 @@ lemma1 {x} rewrite +-assoc x zero 1
 
 ∃-odd' ⟨ zero , refl ⟩ = odd-suc even-zero
 ∃-odd' ⟨ suc m , refl ⟩ rewrite +-comm (m + suc (m + zero)) 1 = odd-suc (∃-even' ⟨ suc m , refl ⟩)
+
+-- Exercise: ∃-+-≤
+
+proj∃₁ : ∀ {A B : Set} → ∃[ A ] B → A
+proj∃₁ ⟨ a , b ⟩ = a
+
+proj∃₂ : ∀ {A B : Set} → ∃[ A ] B → B
+proj∃₂ ⟨ a , b ⟩ = b
+
+≤→∃+ : ∀ (y z : ℕ)
+  → y ≤ z
+    ----------------
+  → ∃[ x ] (x + y ≡ z)
+-- ≤→∃+ y z z≤s = ⟨ z , +-identityʳ z ⟩
+-- ≤→∃+ y z (s≤s y≤z) = {!!}
+≤→∃+ zero z y≤z = ⟨ z , +-identityʳ z ⟩
+≤→∃+ (suc y) (suc z) (s≤s y≤z) = let prf : ∀ {x' : ℕ} → (x' + suc y ≡ suc z)
+                                     prf = proj∃₂ (≤→∃+ y z y≤z)
+                                 in ⟨ {!!} , {!!} ⟩
