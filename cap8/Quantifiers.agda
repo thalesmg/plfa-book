@@ -230,12 +230,6 @@ lemma1 {x} rewrite +-assoc x zero 1
 
 -- Exercise: ∃-+-≤
 
-proj∃₁ : ∀ {A B : Set} → ∃[ A ] B → A
-proj∃₁ ⟨ a , b ⟩ = a
-
-proj∃₂ : ∀ {A B : Set} → ∃[ A ] B → B
-proj∃₂ ⟨ a , b ⟩ = b
-
 ≤→∃+ : ∀ (y z : ℕ)
   → y ≤ z
     ----------------
@@ -243,6 +237,8 @@ proj∃₂ ⟨ a , b ⟩ = b
 -- ≤→∃+ y z z≤s = ⟨ z , +-identityʳ z ⟩
 -- ≤→∃+ y z (s≤s y≤z) = {!!}
 ≤→∃+ zero z y≤z = ⟨ z , +-identityʳ z ⟩
-≤→∃+ (suc y) (suc z) (s≤s y≤z) = let prf : ∀ {x' : ℕ} → (x' + suc y ≡ suc z)
-                                     prf = proj∃₂ (≤→∃+ y z y≤z)
-                                 in ⟨ {!!} , {!!} ⟩
+≤→∃+ (suc y) (suc z) (s≤s y≤z) = ∃-elim (λ{ x prf → ⟨ x , lemma x y z prf ⟩ }) (≤→∃+ y z y≤z)
+  where
+    lemma : ∀ (a b c : ℕ) → a + b ≡ c → a + suc b ≡ suc c
+    lemma a b c refl rewrite +-comm a (suc b)
+                           | +-comm b a  = refl
