@@ -11,6 +11,11 @@ open import Data.Sum using (_⊎_; inj₁; inj₂) renaming ([_,_] to case-⊎)
 open import plfa.cap5.Isomorphism using (_≃_; extensionality)
 open import plfa.cap3.Relations using (_≤_; z≤s; s≤s)
 
+open import Data.Empty using (⊥; ⊥-elim)
+open import plfa.cap7.Negation using (¬-elim)
+import plfa.cap3.Relations
+open plfa.cap3.Relations using (Bin; Can; One)
+
 ∀-elim : ∀ {A : Set} {B : A → Set}
   → (L : ∀ (x : A) → B x)
   → (M : A)
@@ -242,3 +247,39 @@ lemma1 {x} rewrite +-assoc x zero 1
     lemma : ∀ (a b c : ℕ) → a + b ≡ c → a + suc b ≡ suc c
     lemma a b c refl rewrite +-comm a (suc b)
                            | +-comm b a  = refl
+
+¬∃≃∀¬ : ∀ {A : Set} {B : A → Set}
+  → (¬ ∃[ x ] B x) ≃ ∀ x → ¬ (B x)
+¬∃≃∀¬ =
+  record
+    { to = λ{ ¬∃xy x → λ{ y → ¬∃xy ⟨ x , y ⟩ } }
+    ; from = λ{ ∀¬xy → λ{ ⟨ x , y ⟩ → ∀¬xy x y } }
+    ; from∘to = λ{ ¬∃xy → extensionality λ{ ⟨ x , y ⟩ → refl } }
+    ; to∘from = λ{ ∀¬xy → refl }
+    }
+
+-- Exercise: ∃¬-implies-¬∀
+
+∃¬-implies-¬∀ : ∀ {A : Set} {B : A → Set}
+  → (∃[ x ] (¬ (B x))) → ¬ ((x : A) → B x)
+∃¬-implies-¬∀ ⟨ x , ¬Bx ⟩ = λ{ x→Bx → ¬Bx (x→Bx x) }
+
+-- ¬∀-implies-∃¬ : ∀ {A : Set} {B : A → Set}
+--   → (¬ ((x : A) → B x)) → ∃[ x ] (¬ (B x))
+{-
+  The converse does not hold. The type A may not even be inhabited, so
+  one cannot even produce a value of its type.
+-}
+
+-- Exercise: Bin-isomorphism
+
+≡One : ∀{b : Bin} (o o' : One b) → o ≡ o'
+≡One One.one One.one = refl
+≡One (o One.withO) (o' One.withO) = cong One._withO (≡One o o')
+≡One (o One.withI) (o' One.withI) = cong One._withI (≡One o o')
+
+≡Can : ∀ {b : Bin} (cb : Can b) (cb' : Can b) → cb ≡ cb'
+≡Can Can.canZero Can.canZero = {!!}
+≡Can (Can.canMore x) Can.canZero = {!!}
+≡Can Can.canZero (Can.canMore x) = {!!}
+≡Can (Can.canMore x₁) (Can.canMore x) = {!!}

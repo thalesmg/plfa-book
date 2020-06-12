@@ -216,63 +216,57 @@ o+o≡e : ∀ {m n : ℕ}
 o+o≡e (suc x) (suc y) = suc (e+o≡o x (suc y))
 
 data Bin : Set where
-  nil : Bin
-  x0_ : Bin → Bin
-  x1_ : Bin → Bin
+  ⟨⟩  : Bin
+  _O : Bin → Bin
+  _I : Bin → Bin
 
 inc : Bin → Bin
-inc nil    = x1 nil
-inc (x0 b) = x1 b
-inc (x1 b) = x0 (inc b)
+inc ⟨⟩ = ⟨⟩ I
+inc (b O) = b I
+inc (b I) = (inc b) O
 
 to : ℕ → Bin
-to zero = x0 nil
+to zero = ⟨⟩ O
 to (suc m) = inc (to m)
 
 from : Bin → ℕ
-from nil = zero
-from (x0 m) = 2 * from m
-from (x1 m) = 1 + 2 * from m
+from ⟨⟩ = zero
+from (b O) = 2 * from b
+from (b I) = suc (2 * from b)
 
 data One : Bin → Set
 data Can : Bin → Set
 
 data One where
-  one : One (x1 nil)
-  with0_ : ∀ {b : Bin} → One b → One (x0 b)
-  with1_ : ∀ {b : Bin} → One b → One (x1 b)
+  one : One (⟨⟩ I)
+  _withO : ∀ {b} → One b → One (b O)
+  _withI : ∀ {b} → One b → One (b I)
 
 data Can where
-  canZero : Can (x0 nil)
-  canOne  : ∀ {b : Bin} → One b → Can b
+  canZero : Can (⟨⟩ O)
+  canMore : ∀ {b} → One b → Can b
 
 inc-One : ∀ {b : Bin}
   → One b
     -----------
   → One (inc b)
-inc-One one = with0 one
-inc-One (with0 o) = with1 o
-inc-One (with1 one) = with0 (with0 one)
-inc-One (with1 (with0 o)) = with0 (with1 o)
-inc-One (with1 (with1 o)) = with0 (with0 (inc-One o))
+inc-One one = one withO
+inc-One (o withO) = o withI
+inc-One (o withI) = (inc-One o) withO
 
 inc-Can : ∀ {b : Bin}
   → Can b
     -----------
   → Can (inc b)
-inc-Can canZero = canOne one
-inc-Can (canOne one) = canOne (with0 one)
-inc-Can (canOne (with0 x)) = canOne (with1 x)
-inc-Can (canOne (with1 one)) = canOne (with0 (with0 one))
-inc-Can (canOne (with1 (with0 x))) = canOne (with0 (with1 x))
-inc-Can (canOne (with1 (with1 x))) = canOne (with0 (with0 (inc-One x)))
+inc-Can canZero = canMore one
+inc-Can (canMore o) = canMore (inc-One o)
 
-to-One : ∀ {n : ℕ}
+to-One : ∀ (n : ℕ)
   → One (to (suc n))
-to-One {zero} = one
-to-One {suc n} = inc-One (to-One {n})
+to-One zero = one
+to-One (suc n) = inc-One (to-One n)
 
-to-Can : ∀ {n : ℕ}
+to-Can : ∀ (n : ℕ)
   → Can (to n)
-to-Can {zero} = canZero
-to-Can {suc n} = canOne (to-One {n})
+to-Can zero = canZero
+to-Can (suc n) = canMore (to-One n)
