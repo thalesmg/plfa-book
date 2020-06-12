@@ -283,6 +283,7 @@ lemma1 {x} rewrite +-assoc x zero 1
 
 ≡Can : ∀ {b : Bin} (cb : Can b) (cb' : Can b) → cb ≡ cb'
 ≡Can Can.canZero Can.canZero = refl
-≡Can (Can.canMore x) Can.canZero = ⊥-elim (¬-One-zero x)
+-- ≡Can (Can.canMore x) Can.canZero = ⊥-elim (¬-One-zero x)
+≡Can (Can.canMore (() One.withO)) Can.canZero
 ≡Can Can.canZero (Can.canMore x) = ⊥-elim (¬-One-zero x)
 ≡Can (Can.canMore o) (Can.canMore o') = cong Can.canMore (≡One o o')
