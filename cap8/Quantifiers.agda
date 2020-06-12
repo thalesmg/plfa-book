@@ -278,8 +278,11 @@ lemma1 {x} rewrite +-assoc x zero 1
 ≡One (o One.withO) (o' One.withO) = cong One._withO (≡One o o')
 ≡One (o One.withI) (o' One.withI) = cong One._withI (≡One o o')
 
+¬-One-zero : ¬ (One (Bin.⟨⟩ Bin.O))
+¬-One-zero (() One.withO)
+
 ≡Can : ∀ {b : Bin} (cb : Can b) (cb' : Can b) → cb ≡ cb'
-≡Can Can.canZero Can.canZero = {!!}
-≡Can (Can.canMore x) Can.canZero = {!!}
-≡Can Can.canZero (Can.canMore x) = {!!}
-≡Can (Can.canMore x₁) (Can.canMore x) = {!!}
+≡Can Can.canZero Can.canZero = refl
+≡Can (Can.canMore x) Can.canZero = ⊥-elim (¬-One-zero x)
+≡Can Can.canZero (Can.canMore x) = ⊥-elim (¬-One-zero x)
+≡Can (Can.canMore o) (Can.canMore o') = cong Can.canMore (≡One o o')
