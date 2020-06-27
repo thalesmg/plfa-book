@@ -270,3 +270,24 @@ to-Can : ∀ (n : ℕ)
   → Can (to n)
 to-Can zero = canZero
 to-Can (suc n) = canMore (to-One n)
+
+from∘inc-lemma : ∀ {n} → from (inc n) ≡ suc (from n)
+from∘inc-lemma {⟨⟩} = refl
+from∘inc-lemma {n O} = refl
+from∘inc-lemma {n I} rewrite from∘inc-lemma {n}
+                           | +-suc (from n) (from n + 0)
+                           = refl
+
+from∘to≡ : ∀ { n } → from (to n) ≡ n
+from∘to≡ {zero} = refl
+from∘to≡ {suc n} rewrite from∘inc-lemma {to n} = cong suc (from∘to≡ {n})
+
+Can-to : ∀ {n} → Can (to n)
+Can-to {zero} = canZero
+Can-to {suc n} = canMore (to-One n)
+
+Can-to∘from : ∀ {b} → Can b → to (from b) ≡ b
+Can-to∘from canZero = refl
+Can-to∘from (canMore one) = refl
+Can-to∘from (canMore (x withO)) = {!!}
+Can-to∘from (canMore (x withI)) = {!!}

@@ -6,7 +6,8 @@ open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; _≡⟨_⟩_; _∎)
 open import Data.Nat using (ℕ; zero; suc; _+_; _*_)
 open import Data.Nat.Properties using (+-identityʳ; +-assoc; +-comm)
 open import Relation.Nullary using (¬_)
-open import Data.Product using (_×_; proj₁; proj₂) renaming (_,_ to ⟨⟨_,_⟩⟩)
+-- open import Data.Product using (_×_; proj₁; proj₂) renaming (_,_ to ⟨⟨_,_⟩⟩)
+open import Data.Product using (_×_; proj₁; proj₂) renaming (_,_ to ⟨_,_⟩)
 open import Data.Sum using (_⊎_; inj₁; inj₂) renaming ([_,_] to case-⊎)
 open import plfa.cap5.Isomorphism using (_≃_; extensionality)
 open import plfa.cap3.Relations using (_≤_; z≤s; s≤s)
@@ -14,7 +15,7 @@ open import plfa.cap3.Relations using (_≤_; z≤s; s≤s)
 open import Data.Empty using (⊥; ⊥-elim)
 open import plfa.cap7.Negation using (¬-elim)
 import plfa.cap3.Relations
-open plfa.cap3.Relations using (Bin; Can; One)
+open plfa.cap3.Relations using (Bin; Can; One; to-Can) renaming (to to toB; from to fromB; from∘to≡ to from∘toB)
 
 ∀-elim : ∀ {A : Set} {B : A → Set}
   → (L : ∀ (x : A) → B x)
@@ -27,8 +28,8 @@ open plfa.cap3.Relations using (Bin; Can; One)
   (∀ (x : A) → B x × C x) ≃ (∀ (x : A) → B x) × (∀ (x : A) → C x)
 ∀-distrib-× =
   record
-    { to = λ{ f → ⟨⟨ (λ{ x → proj₁ (f x) }) , (λ{ x → proj₂ (f x) }) ⟩⟩ }
-    ; from = λ{ ⟨⟨ a→b , a→c ⟩⟩ → λ{ a → ⟨⟨ a→b a , a→c a ⟩⟩ } }
+    { to = λ{ f → ⟨ (λ{ x → proj₁ (f x) }) , (λ{ x → proj₂ (f x) }) ⟩ }
+    ; from = λ{ ⟨ a→b , a→c ⟩ → λ{ a → ⟨ a→b a , a→c a ⟩ } }
     ; from∘to = λ{ f → refl }
     ; to∘from = λ{ x → refl }
     }
@@ -62,8 +63,8 @@ postulate
   → (∀ (x : Tri) → B x) ≃ (B aa × B bb × B cc)
 ∀-× =
   record
-    { to = λ{ mk → ⟨⟨ mk aa , ⟨⟨ mk bb , mk cc ⟩⟩ ⟩⟩ }
-    ; from = λ{ ⟨⟨ Baa , ⟨⟨ Bbb , Bcc ⟩⟩ ⟩⟩ → λ{ aa → Baa
+    { to = λ{ mk → ⟨ mk aa , ⟨ mk bb , mk cc ⟩ ⟩ }
+    ; from = λ{ ⟨ Baa , ⟨ Bbb , Bcc ⟩ ⟩ → λ{ aa → Baa
                                          ; bb → Bbb
                                          ; cc → Bcc
                                          }
@@ -73,7 +74,7 @@ postulate
                                           ; cc → refl
                                           }
                  }
-    ; to∘from = λ{ ⟨⟨ Baa , ⟨⟨ Bbb , Bcc ⟩⟩ ⟩⟩ → refl }
+    ; to∘from = λ{ ⟨ Baa , ⟨ Bbb , Bcc ⟩ ⟩ → refl }
     }
 
 data Σ (A : Set) (B : A → Set) : Set where
@@ -132,7 +133,7 @@ syntax ∃-syntax (λ x → B) = ∃[ x ] B
 
 ∃×-implies-×∃ : ∀ {A : Set} {B C : A → Set} →
   ∃[ x ] (B x × C x) → (∃[ x ] B x) × (∃[ x ] C x)
-∃×-implies-×∃ ⟨ x , ⟨⟨ Bx , Cx ⟩⟩ ⟩ = ⟨⟨ ⟨ x , Bx ⟩ , ⟨ x , Cx ⟩ ⟩⟩
+∃×-implies-×∃ ⟨ x , ⟨ Bx , Cx ⟩ ⟩ = ⟨ ⟨ x , Bx ⟩ , ⟨ x , Cx ⟩ ⟩
 
 {-
   the converse of ∃×-implies-×∃ does not hold. if we `∃[ x ] B` and
@@ -287,3 +288,18 @@ lemma1 {x} rewrite +-assoc x zero 1
 ≡Can (Can.canMore (() One.withO)) Can.canZero
 ≡Can Can.canZero (Can.canMore x) = ⊥-elim (¬-One-zero x)
 ≡Can (Can.canMore o) (Can.canMore o') = cong Can.canMore (≡One o o')
+
+proj₁∃ : {A : Set} {B : A → Set} → ∃[ x ] B x → A
+proj₁∃ ⟨ x , _ ⟩ = x
+
+proj₁≡→Can≡ : {cb cb' : ∃[ b ](Can b)} → proj₁∃ cb ≡ proj₁∃ cb' → cb ≡ cb'
+proj₁≡→Can≡ {⟨ x , y ⟩} {⟨ x' , y' ⟩} refl rewrite ≡Can y y' = refl
+
+ℕ-iso-∃Bin : ∃[ b ](Can b) ≃ ℕ
+ℕ-iso-∃Bin =
+  record
+    { to = λ{ ⟨ b , cb ⟩ → fromB b }
+    ; from = λ{ n → ⟨ toB n , to-Can n ⟩ }
+    ; to∘from = λ{ n → from∘toB {n}}
+    ; from∘to = λ{ ⟨ b , cb ⟩ → proj₁≡→Can≡ {!!} }
+    }
