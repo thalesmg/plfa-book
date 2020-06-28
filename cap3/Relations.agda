@@ -292,8 +292,30 @@ withO-2* b = refl
 withO-+ : ∀ b → from b + from b ≡ from (b O)
 withO-+ b rewrite +-identityʳ (from b) = refl
 
+n≤sn : ∀ {n} → n ≤ suc n
+n≤sn {zero} = z≤s
+n≤sn {suc n} = s≤s (n≤sn {n})
+
+n≤n+0 : ∀ {n} → n ≤ n + zero
+n≤n+0 {zero} = z≤s
+n≤n+0 {suc n} = s≤s (n≤n+0 {n})
+
+x≤x+x : ∀ {n} → n ≤ n + n
+x≤x+x {zero} = z≤s
+x≤x+x {suc n} rewrite +-identityʳ n = s≤s (≤-trans (n≤n+0 {n}) (+-monoʳ-≤ n zero (suc n) z≤s))
+
+lemma1 : ∀ {b} → One b → 1 ≤ from b
+lemma1 one = s≤s z≤s
+lemma1 {b O} (o withO) rewrite +-identityʳ (from b) = ≤-trans (lemma1 o) x≤x+x
+lemma1 (o withI) = s≤s z≤s
+
+One-to∘from : ∀ {b} → One b → to (from b) ≡ b
+One-to∘from one = refl
+One-to∘from {b O} (o withO) rewrite +-identityʳ (from b)
+                                  | withO-+ (b O) = {!!}
+One-to∘from (o withI) = {!!}
+
 Can-to∘from : ∀ {b} → Can b → to (from b) ≡ b
 Can-to∘from canZero = refl
-Can-to∘from (canMore one) = refl
-Can-to∘from (canMore (x withO)) = {!!}
-Can-to∘from (canMore (x withI)) = {!!}
+Can-to∘from (canMore x) with lemma1 x
+...                        | prf = {!!}
