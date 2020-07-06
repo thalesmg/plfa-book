@@ -237,41 +237,31 @@ from (b I) = suc (2 * from b)
 data One : Bin → Set
 data Can : Bin → Set
 
+-- not suitable for proving later stuff...
+-- data One where
+--   one : One (⟨⟩ I)
+--   _withO : ∀ {b} → One b → One (b O)
+--   _withI : ∀ {b} → One b → One (b I)
+
 data One where
-  one : One (⟨⟩ I)
-  _withO : ∀ {b} → One b → One (b O)
-  _withI : ∀ {b} → One b → One (b I)
+  one    : One (⟨⟩ I)
+  sucOne : ∀ {b} → One b → One (inc b)
 
 data Can where
   canZero : Can (⟨⟩ O)
   canMore : ∀ {b} → One b → Can b
-
-inc-One : ∀ {b : Bin}
-  → One b
-    -----------
-  → One (inc b)
-inc-One one = one withO
-inc-One (o withO) = o withI
-inc-One (o withI) = (inc-One o) withO
 
 inc-Can : ∀ {b : Bin}
   → Can b
     -----------
   → Can (inc b)
 inc-Can canZero = canMore one
-inc-Can (canMore o) = canMore (inc-One o)
+inc-Can (canMore o) = canMore (sucOne o)
 
 to-One : ∀ (n : ℕ)
   → One (to (suc n))
 to-One zero = one
-to-One (suc n) = inc-One (to-One n)
-
-to-One-odd : ∀ (n : ℕ)
-  → One (to (n + suc n))
-to-One-odd zero = one
-to-One-odd (suc zero) = one withI
-to-One-odd (suc (suc n)) rewrite +-suc n (suc (suc n))
-                               | +-suc n (suc n) = inc-One (inc-One (inc-One (inc-One (to-One-odd n))))
+to-One (suc n) = sucOne (to-One n)
 
 to-Can : ∀ (n : ℕ)
   → Can (to n)
@@ -311,37 +301,10 @@ x≤x+x : ∀ {n} → n ≤ n + n
 x≤x+x {zero} = z≤s
 x≤x+x {suc n} rewrite +-identityʳ n = s≤s (≤-trans (n≤n+0 {n}) (+-monoʳ-≤ n zero (suc n) z≤s))
 
-lemma1 : ∀ {b} → One b → 1 ≤ from b
-lemma1 one = s≤s z≤s
-lemma1 {b O} (o withO) rewrite +-identityʳ (from b) = ≤-trans (lemma1 o) x≤x+x
-lemma1 (o withI) = s≤s z≤s
-
-lemma-even : ∀ (n : ℕ) → to (suc n + suc n) ≡ (to (suc n)) O
-lemma-odd : ∀ (n : ℕ) → to (n + suc n) ≡ inc (to (n + n))
-
-lemma-even zero = refl
-lemma-even (suc zero) = refl
-lemma-even (suc (suc n)) rewrite +-suc n (suc (suc n))
-                               | +-suc n (suc n)
-                               | lemma-odd n = {!!}
-
-lemma-odd zero = refl
-lemma-odd (suc n) rewrite +-suc n (suc n) = cong inc (cong inc refl)
-
-lemma2 : ∀ (n : ℕ) → inc (to (n + suc n)) ≡ (to (suc n)) O
-lemma2 zero = refl
-lemma2 (suc n) rewrite +-suc n (suc n)
-                     | lemma-odd n = cong inc {!!}
-
 One-to∘from : ∀ {b} → One b → to (from b) ≡ b
-One-to∘from one = refl
-One-to∘from (o withI) = cong inc (One-to∘from (o withO))
-One-to∘from {b O} (o withO) with (from b + zero) | +-identityʳ (from b) | from b | lemma1 o
-... | .(from b) | refl | suc n | prf  with (suc n + zero) | +-identityʳ (suc n)
-... | .(suc n) | refl = {!!}
+One-to∘from {.(⟨⟩ I)} one = refl
+One-to∘from (sucOne {b} o) rewrite from∘inc-lemma {b} = cong inc (One-to∘from o)
 
 Can-to∘from : ∀ {b} → Can b → to (from b) ≡ b
 Can-to∘from canZero = refl
-Can-to∘from {.(⟨⟩ I)} (canMore one) = refl
-Can-to∘from {b O} (canMore (x withO)) rewrite +-identityʳ (from b) = {!!}
-Can-to∘from {.(_ I)} (canMore (x withI)) = {!!}
+Can-to∘from (canMore o) = One-to∘from o

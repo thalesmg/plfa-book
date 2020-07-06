@@ -15,7 +15,7 @@ open import plfa.cap3.Relations using (_≤_; z≤s; s≤s)
 open import Data.Empty using (⊥; ⊥-elim)
 open import plfa.cap7.Negation using (¬-elim)
 import plfa.cap3.Relations
-open plfa.cap3.Relations using (Bin; Can; One; to-Can) renaming (to to toB; from to fromB; from∘to≡ to from∘toB)
+open plfa.cap3.Relations using (Bin; Can; One; to-Can; inc) renaming (to to toB; from to fromB; from∘to≡ to from∘toB)
 
 ∀-elim : ∀ {A : Set} {B : A → Set}
   → (L : ∀ (x : A) → B x)
@@ -274,20 +274,21 @@ lemma1 {x} rewrite +-assoc x zero 1
 
 -- Exercise: Bin-isomorphism
 
-≡One : ∀{b : Bin} (o o' : One b) → o ≡ o'
-≡One One.one One.one = refl
-≡One (o One.withO) (o' One.withO) = cong One._withO (≡One o o')
-≡One (o One.withI) (o' One.withI) = cong One._withI (≡One o o')
+≡One : ∀ {b : Bin} (o o' : One b) → o ≡ o'
+≡One {.(Bin.⟨⟩ Bin.I)} One.one o2 = {!!}
+≡One {.(inc _)} (One.sucOne o1) o2 = {!!}
 
 ¬-One-zero : ¬ (One (Bin.⟨⟩ Bin.O))
-¬-One-zero (() One.withO)
+-- ¬-One-zero (() One.withO)
+¬-One-zero x = {!!}
 
 ≡Can : ∀ {b : Bin} (cb : Can b) (cb' : Can b) → cb ≡ cb'
-≡Can Can.canZero Can.canZero = refl
+≡Can cb1 cb2 = {!!}
+-- ≡Can Can.canZero Can.canZero = refl
 -- ≡Can (Can.canMore x) Can.canZero = ⊥-elim (¬-One-zero x)
-≡Can (Can.canMore (() One.withO)) Can.canZero
-≡Can Can.canZero (Can.canMore x) = ⊥-elim (¬-One-zero x)
-≡Can (Can.canMore o) (Can.canMore o') = cong Can.canMore (≡One o o')
+-- ≡Can (Can.canMore (() One.withO)) Can.canZero
+-- ≡Can Can.canZero (Can.canMore x) = ⊥-elim (¬-One-zero x)
+-- ≡Can (Can.canMore o) (Can.canMore o') = cong Can.canMore (≡One o o')
 
 proj₁∃ : {A : Set} {B : A → Set} → ∃[ x ] B x → A
 proj₁∃ ⟨ x , _ ⟩ = x
