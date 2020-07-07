@@ -274,9 +274,41 @@ lemma1 {x} rewrite +-assoc x zero 1
 
 -- Exercise: Bin-isomorphism
 
+data One' : Bin → Set where
+  one'   : One' (Bin.⟨⟩ Bin.I)
+  _withO' : ∀ {b} → One' b → One' (b Bin.O)
+  _withI' : ∀ {b} → One' b → One' (b Bin.I)
+
+One-withO : ∀ {b} → One b → One (b Bin.O)
+One-withO One.one = One.sucOne One.one
+One-withO (One.sucOne o) = One.sucOne (One.sucOne (One-withO o))
+
+One-withI : ∀ {b} → One b → One (b Bin.I)
+One-withI One.one = One.sucOne (One.sucOne One.one)
+One-withI (One.sucOne o) = One.sucOne (One.sucOne (One-withI o))
+
+One→One' : ∀ {b} → One b → One' b
+One→One' One.one = one'
+One→One' (One.sucOne {Bin.⟨⟩} o) = one'
+One→One' (One.sucOne {b Bin.O} o) = {!!}
+One→One' (One.sucOne {b Bin.I} o) = {!!}
+
+One'→One : ∀ {b} → One' b → One b
+One'→One one' = One.one
+One'→One (o withO') with (One'→One o)
+... | One.one = One.sucOne One.one
+... | One.sucOne oo = One.sucOne (One-withI oo)
+One'→One (o withI') with (One'→One o)
+... | One.one = One.sucOne (One.sucOne One.one)
+... | One.sucOne oo = One-withI (One.sucOne oo)
+
+≡One' : ∀ {b : Bin} (o o' : One' b) → o ≡ o'
+≡One' one' one' = refl
+≡One' (o1 withO') (o2 withO') = cong _withO' (≡One' o1 o2)
+≡One' (o1 withI') (o2 withI') = cong _withI' (≡One' o1 o2)
+
 ≡One : ∀ {b : Bin} (o o' : One b) → o ≡ o'
-≡One {.(Bin.⟨⟩ Bin.I)} One.one o2 = {!!}
-≡One {.(inc _)} (One.sucOne o1) o2 = {!!}
+≡One o1 o2 = {!!}
 
 ¬-One-zero : ¬ (One (Bin.⟨⟩ Bin.O))
 -- ¬-One-zero (() One.withO)
