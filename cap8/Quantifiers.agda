@@ -290,8 +290,11 @@ One-withI (One.sucOne o) = One.sucOne (One.sucOne (One-withI o))
 One→One' : ∀ {b} → One b → One' b
 One→One' One.one = one'
 One→One' (One.sucOne {Bin.⟨⟩} o) = one'
-One→One' (One.sucOne {b Bin.O} o) = {!!}
-One→One' (One.sucOne {b Bin.I} o) = {!!}
+One→One' (One.sucOne {b Bin.O} o) with One→One' o
+... | oo withO' = oo withI'
+One→One' (One.sucOne {b Bin.I} o) with One→One' o
+... | one' = one' withO'
+... | oo withI' = {!!}
 
 One'→One : ∀ {b} → One' b → One b
 One'→One one' = One.one
