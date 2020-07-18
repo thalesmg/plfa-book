@@ -311,7 +311,8 @@ One'→One (o withI') with (One'→One o)
 ≡One' (o1 withI') (o2 withI') = cong _withI' (≡One' o1 o2)
 
 ≡One : ∀ {b : Bin} (o o' : One b) → o ≡ o'
-≡One o1 o2 = {!!}
+≡One One.one o2 = {!!}
+≡One (One.sucOne o1) o2 = {!!}
 
 ¬-One-zero : ¬ (One (Bin.⟨⟩ Bin.O))
 -- ¬-One-zero (() One.withO)

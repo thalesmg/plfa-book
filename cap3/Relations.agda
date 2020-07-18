@@ -243,25 +243,43 @@ data Can : Bin → Set
 --   _withO : ∀ {b} → One b → One (b O)
 --   _withI : ∀ {b} → One b → One (b I)
 
+-- much better for proving stuff in this chapter
+-- but very hard to prove stuff in Quantifiers...
+-- data One where
+--   one    : One (⟨⟩ I)
+--   sucOne : ∀ {b} → One b → One (inc b)
+
+data Inc : Bin → Bin → Set where
+  inc-⟨⟩ : Inc (⟨⟩) (⟨⟩ I)
+  inc-O  : ∀ (b : Bin) → Inc (b O) (b I)
+  inc-I  : ∀ (b b' : Bin) → Inc b b' → Inc (b I) (b' O)
+
 data One where
-  one    : One (⟨⟩ I)
-  sucOne : ∀ {b} → One b → One (inc b)
+  one : One (⟨⟩ I)
+  sucOne : ∀ {b b'} → Inc b b' → One b → One b'
 
 data Can where
   canZero : Can (⟨⟩ O)
   canMore : ∀ {b} → One b → Can b
 
-inc-Can : ∀ {b : Bin}
+inc-Can : ∀ {b b' : Bin}
+  → {_ : Inc b b'}
   → Can b
     -----------
-  → Can (inc b)
-inc-Can canZero = canMore one
-inc-Can (canMore o) = canMore (sucOne o)
+  → Can b'
+inc-Can {.(⟨⟩ O)} {⟨⟩ I} {prf} canZero = canMore one
+inc-Can {b} {b'} {prf} (canMore o) = canMore (sucOne prf o)
+
+Inc-inc : ∀ {b} → Inc b (inc b)
+Inc-inc {⟨⟩} = inc-⟨⟩
+Inc-inc {b O} = inc-O b
+Inc-inc {b I} = inc-I b (inc b) Inc-inc
 
 to-One : ∀ (n : ℕ)
   → One (to (suc n))
 to-One zero = one
-to-One (suc n) = sucOne (to-One n)
+to-One (suc n) with to-One n
+... | prf = sucOne (Inc-inc {inc (to n)}) prf
 
 to-Can : ∀ (n : ℕ)
   → Can (to n)
@@ -303,7 +321,10 @@ x≤x+x {suc n} rewrite +-identityʳ n = s≤s (≤-trans (n≤n+0 {n}) (+-mono�
 
 One-to∘from : ∀ {b} → One b → to (from b) ≡ b
 One-to∘from {.(⟨⟩ I)} one = refl
-One-to∘from (sucOne {b} o) rewrite from∘inc-lemma {b} = cong inc (One-to∘from o)
+One-to∘from (sucOne inc-⟨⟩ o) = refl
+One-to∘from (sucOne (inc-O b) o) = cong inc (One-to∘from o)
+One-to∘from (sucOne (inc-I b b' i) o) with One-to∘from o
+... | prf = {!!}
 
 Can-to∘from : ∀ {b} → Can b → to (from b) ≡ b
 Can-to∘from canZero = refl
