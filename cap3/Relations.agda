@@ -231,8 +231,8 @@ to (suc m) = inc (to m)
 
 from : Bin → ℕ
 from ⟨⟩ = zero
-from (b O) = 2 * from b
-from (b I) = suc (2 * from b)
+from (b O) = from b + from b
+from (b I) = suc (from b + from b)
 
 data One : Bin → Set
 data Can : Bin → Set
@@ -275,6 +275,20 @@ Inc-inc {⟨⟩} = inc-⟨⟩
 Inc-inc {b O} = inc-O b
 Inc-inc {b I} = inc-I b (inc b) Inc-inc
 
+Inc-inc-subs : ∀ {b b'} → Inc b b' → b' ≡ inc b
+Inc-inc-subs inc-⟨⟩ = refl
+Inc-inc-subs (inc-O b) = refl
+Inc-inc-subs (inc-I .⟨⟩ .(⟨⟩ I) inc-⟨⟩) = refl
+Inc-inc-subs (inc-I .(b O) .(b I) (inc-O b)) = refl
+Inc-inc-subs (inc-I .(b I) .(b' O) (inc-I b b' i)) = cong (_O) (cong _O (Inc-inc-subs i))
+
+Inc-One : ∀ {b b'} → Inc b b' → One b → One b'
+Inc-One inc-⟨⟩ (sucOne x o) = one
+Inc-One (inc-O b) o = sucOne (inc-O b) o
+Inc-One (inc-I .⟨⟩ .(⟨⟩ I) inc-⟨⟩) one = sucOne (inc-I ⟨⟩ (⟨⟩ I) inc-⟨⟩) one
+Inc-One (inc-I b b' i) (sucOne x o) with Inc-One x o | Inc-inc-subs i
+... | oo | refl = sucOne Inc-inc oo
+
 to-One : ∀ (n : ℕ)
   → One (to (suc n))
 to-One zero = one
@@ -290,7 +304,7 @@ from∘inc-lemma : ∀ {n} → from (inc n) ≡ suc (from n)
 from∘inc-lemma {⟨⟩} = refl
 from∘inc-lemma {n O} = refl
 from∘inc-lemma {n I} rewrite from∘inc-lemma {n}
-                           | +-suc (from n) (from n + 0)
+                           | +-suc (from n) (from n)
                            = refl
 
 from∘to≡ : ∀ { n } → from (to n) ≡ n
@@ -301,11 +315,22 @@ Can-to : ∀ {n} → Can (to n)
 Can-to {zero} = canZero
 Can-to {suc n} = canMore (to-One n)
 
-withO-2* : ∀ b → 2 * from b ≡ from (b O)
-withO-2* b = refl
+-- withO-2* : ∀ b → 2 * from b ≡ from (b O)
+-- withO-2* b = {!!}
 
 withO-+ : ∀ b → from b + from b ≡ from (b O)
-withO-+ b rewrite +-identityʳ (from b) = refl
+withO-+ b = refl
+
+suc-suc : ∀ {n} → suc n + suc n ≡ suc (n + suc n)
+suc-suc = refl
+
+Inc-suc-from : ∀ {b b'} → Inc b b' → from b' ≡ suc (from b)
+Inc-suc-from inc-⟨⟩ = refl
+Inc-suc-from (inc-O b) = refl
+Inc-suc-from (inc-I b b' i)
+  rewrite sym (+-suc (from b) (from b))
+        | suc-suc {from b}
+        | Inc-suc-from i = refl
 
 n≤sn : ∀ {n} → n ≤ suc n
 n≤sn {zero} = z≤s
@@ -319,12 +344,56 @@ x≤x+x : ∀ {n} → n ≤ n + n
 x≤x+x {zero} = z≤s
 x≤x+x {suc n} rewrite +-identityʳ n = s≤s (≤-trans (n≤n+0 {n}) (+-monoʳ-≤ n zero (suc n) z≤s))
 
-One-to∘from : ∀ {b} → One b → to (from b) ≡ b
+inc-inc-lemma : ∀ {b b'} → Inc b b' → b' O ≡ inc (inc (b O))
+inc-inc-lemma inc-⟨⟩ = refl
+inc-inc-lemma (inc-O b) = refl
+inc-inc-lemma (inc-I b b' i) = Inc-inc-subs (inc-I (b I) (b' O) (inc-I b b' i))
+
+evil-lemma : ∀ {b b'} → One b → Inc b b' → One b'
+evil-lemma o inc-⟨⟩ = one
+evil-lemma o (inc-O b) = sucOne (inc-O b) o
+evil-lemma o (inc-I b b' i) = sucOne (inc-I b b' i) o
+
+sad-lemma : ∀ {b b'} → One b' → b I ≡ inc b' → b' ≡ b O
+sad-lemma (sucOne (inc-I .⟨⟩ .(⟨⟩ I) inc-⟨⟩) one) refl = refl
+sad-lemma (sucOne (inc-I b b' i) (sucOne i' o)) refl = refl
+
+good-lemma : ∀ {b} → One b → One (b O)
+good-lemma one = sucOne (inc-I ⟨⟩ (⟨⟩ I) inc-⟨⟩) one
+good-lemma (sucOne inc-⟨⟩ o) = good-lemma one
+good-lemma (sucOne (inc-O b) o) = sucOne (inc-I (b O) (b I) (inc-O b))
+                                    (sucOne (inc-O (b O)) (good-lemma o))
+good-lemma (sucOne (inc-I b b' i) o) = sucOne (inc-I (b I) (b' O) (inc-I b b' i))
+                                         (sucOne (inc-O (b I)) (good-lemma o))
+
+One-to∘from : ∀ {b : Bin} → One b → to (from b) ≡ b
 One-to∘from {.(⟨⟩ I)} one = refl
 One-to∘from (sucOne inc-⟨⟩ o) = refl
 One-to∘from (sucOne (inc-O b) o) = cong inc (One-to∘from o)
-One-to∘from (sucOne (inc-I b b' i) o) with One-to∘from o
-... | prf = {!!}
+One-to∘from (sucOne (inc-I .⟨⟩ b' i) one) with inc-inc-lemma i
+... | refl = refl
+One-to∘from (sucOne (inc-I b b' i) (sucOne {b''} x (sucOne x₁ o)))
+--   with One-to∘from o | Inc-suc-from i | +-suc (from b) (from b) | inc-inc-lemma i | Inc-inc-subs (inc-O b'') | withO-+ (inc b)
+-- ... | prf1 | prf2 | prf3 | refl | refl | refl = {!!}
+  rewrite
+      One-to∘from o
+    | Inc-suc-from i
+    | +-suc (from b) (from b)
+    | inc-inc-lemma i
+    -- | Inc-inc-subs (inc-O b'') =
+    --   let fuck = Inc-One x₁ o
+    --       carai = evil-lemma fuck x
+    --       maldito = Inc-inc-subs x
+    --       bosta = sad-lemma fuck maldito
+    --   in cong inc (One-to∘from (sucOne (inc-O b) {!fuck!}))
+    | Inc-inc-subs (inc-O b'')
+    | sad-lemma (Inc-One x₁ o) (Inc-inc-subs x) = cong inc {!!}
+      -- in cong inc (One-to∘from (sucOne (inc-O b) {!fuck!}))
+    -- | Inc-inc-subs (inc-O b'') = {!!}
+
+-- Inc-One : ∀ {b b'} → Inc b b' → One b → One b'
+-- Inc-inc-subs : ∀ {b b'} → Inc b b' → b' ≡ inc b
+-- sad-lemma : ∀ {b b'} → One b' → b I ≡ inc b' → b' ≡ b O
 
 Can-to∘from : ∀ {b} → Can b → to (from b) ≡ b
 Can-to∘from canZero = refl
