@@ -366,18 +366,22 @@ good-lemma (sucOne (inc-O b) o) = sucOne (inc-I (b O) (b I) (inc-O b))
 good-lemma (sucOne (inc-I b b' i) o) = sucOne (inc-I (b I) (b' O) (inc-I b b' i))
                                          (sucOne (inc-O (b I)) (good-lemma o))
 
+excellent-lemma : ∀ {b b' b''} → One b → Inc b b' → Inc b' b'' → One (b' O)
+excellent-lemma o i i' with evil-lemma o i
+... | prf = {!!}
+
+caraioooo : ∀ {b b'} → b ≡ b' O → One b → One (b' O)
+caraioooo refl o = o
+
 One-to∘from : ∀ {b : Bin} → One b → to (from b) ≡ b
 One-to∘from {.(⟨⟩ I)} one = refl
 One-to∘from (sucOne inc-⟨⟩ o) = refl
 One-to∘from (sucOne (inc-O b) o) = cong inc (One-to∘from o)
 One-to∘from (sucOne (inc-I .⟨⟩ b' i) one) with inc-inc-lemma i
 ... | refl = refl
-One-to∘from (sucOne (inc-I b b' i) (sucOne {b''} x (sucOne x₁ o)))
---   with One-to∘from o | Inc-suc-from i | +-suc (from b) (from b) | inc-inc-lemma i | Inc-inc-subs (inc-O b'') | withO-+ (inc b)
--- ... | prf1 | prf2 | prf3 | refl | refl | refl = {!!}
+One-to∘from (sucOne (inc-I b b' i) (sucOne {b''} {.(b I)} x (sucOne i' o)))
   rewrite
-      One-to∘from o
-    | Inc-suc-from i
+    Inc-suc-from i
     | +-suc (from b) (from b)
     | inc-inc-lemma i
     -- | Inc-inc-subs (inc-O b'') =
@@ -387,13 +391,17 @@ One-to∘from (sucOne (inc-I b b' i) (sucOne {b''} x (sucOne x₁ o)))
     --       bosta = sad-lemma fuck maldito
     --   in cong inc (One-to∘from (sucOne (inc-O b) {!fuck!}))
     | Inc-inc-subs (inc-O b'')
-    | sad-lemma (Inc-One x₁ o) (Inc-inc-subs x) = cong inc {!!}
+    | sad-lemma (Inc-One i' o) (Inc-inc-subs x) =
+      let bosta = sad-lemma (Inc-One i' o) (Inc-inc-subs x)
+          merda = evil-lemma o i'
+      in cong inc (cong inc (One-to∘from (caraioooo bosta merda)))
       -- in cong inc (One-to∘from (sucOne (inc-O b) {!fuck!}))
     -- | Inc-inc-subs (inc-O b'') = {!!}
 
 -- Inc-One : ∀ {b b'} → Inc b b' → One b → One b'
 -- Inc-inc-subs : ∀ {b b'} → Inc b b' → b' ≡ inc b
 -- sad-lemma : ∀ {b b'} → One b' → b I ≡ inc b' → b' ≡ b O
+-- evil-lemma : ∀ {b b'} → One b → Inc b b' → One b'
 
 Can-to∘from : ∀ {b} → Can b → to (from b) ≡ b
 Can-to∘from canZero = refl
