@@ -15,7 +15,15 @@ open import plfa.cap3.Relations using (_≤_; z≤s; s≤s)
 open import Data.Empty using (⊥; ⊥-elim)
 open import plfa.cap7.Negation using (¬-elim)
 import plfa.cap3.Relations
-open plfa.cap3.Relations using (Bin; Can; One; to-Can; inc) renaming (to to toB; from to fromB; from∘to≡ to from∘toB)
+open plfa.cap3.Relations using ( Bin
+                               ; Can
+                               ; One
+                               ; to-Can
+                               ; inc
+                               ; Inc
+                               ; Inc-inc-subs
+                               ; Inc-One
+                               ) renaming (to to toB; from to fromB; from∘to≡ to from∘toB)
 
 ∀-elim : ∀ {A : Set} {B : A → Set}
   → (L : ∀ (x : A) → B x)
@@ -274,6 +282,7 @@ lemma1 {x} rewrite +-assoc x zero 1
 
 -- Exercise: Bin-isomorphism
 
+{-
 data One' : Bin → Set where
   one'   : One' (Bin.⟨⟩ Bin.I)
   _withO' : ∀ {b} → One' b → One' (b Bin.O)
@@ -309,10 +318,41 @@ One'→One (o withI') with (One'→One o)
 ≡One' one' one' = refl
 ≡One' (o1 withO') (o2 withO') = cong _withO' (≡One' o1 o2)
 ≡One' (o1 withI') (o2 withI') = cong _withI' (≡One' o1 o2)
+-}
+
+-- Inc-One : ∀ {b b'} → Inc b b' → One b → One b'
+-- Inc-inc-subs : ∀ {b b'} → Inc b b' → b' ≡ inc b
+
+One-head-O : ∀ {b} → One (b Bin.O) → One b
+One-head-OI : ∀ {b} → One (b Bin.O Bin.I) → One b
+One-head-II : ∀ {b} → One (b Bin.I Bin.I) → One (b Bin.I)
+
+One-head-O (One.sucOne {b Bin.I} (Inc.inc-I .b (b' Bin.O) x) (One.sucOne x₁ o)) = {!!}
+One-head-O (One.sucOne {.Bin.⟨⟩ Bin.I} (Inc.inc-I .Bin.⟨⟩ (b' Bin.I) x) One.one) = {!!}
+One-head-O (One.sucOne {b Bin.I} (Inc.inc-I .b (b' Bin.I) x) (One.sucOne x₁ o)) = {!!}
+
+≡Inc-Inc : ∀ {b0 b1 b2 b2' : Bin} → Inc b0 b1 → Inc b1 b2 → Inc b1 b2' → b2 ≡ b2'
+≡Inc-Inc Inc.inc-⟨⟩ (Inc.inc-I .Bin.⟨⟩ .(Bin.⟨⟩ Bin.I) Inc.inc-⟨⟩) (Inc.inc-I .Bin.⟨⟩ .(Bin.⟨⟩ Bin.I) Inc.inc-⟨⟩) = refl
+≡Inc-Inc (Inc.inc-O Bin.⟨⟩) (Inc.inc-I .Bin.⟨⟩ b'' i) (Inc.inc-I .Bin.⟨⟩ b' i')
+  rewrite Inc-inc-subs i'
+        | Inc-inc-subs i = refl
+≡Inc-Inc (Inc.inc-O (b Bin.O)) (Inc.inc-I .(b Bin.O) b'' i) (Inc.inc-I .(b Bin.O) b' i')
+  rewrite Inc-inc-subs i'
+        | Inc-inc-subs i = refl
+≡Inc-Inc (Inc.inc-O (b Bin.I)) (Inc.inc-I .(b Bin.I) b'' i) (Inc.inc-I .(b Bin.I) b' i')
+  rewrite Inc-inc-subs i'
+        | Inc-inc-subs i = refl
+≡Inc-Inc (Inc.inc-I b b' i0) (Inc.inc-O .b') (Inc.inc-O .b') = refl
+
+≡Inc : ∀ {b0 b1 bi : Bin} → One b0 → Inc b0 bi → One b1 → Inc b1 bi → b0 ≡ b1
+≡Inc (One.sucOne x o0) i0 (One.sucOne () o1) Inc.inc-⟨⟩
+≡Inc o0 i0 o1 (Inc.inc-O b) = {!!}
+≡Inc o0 (Inc.inc-I b0 .b' i0) o1 (Inc.inc-I b b' i1) = {!!}
 
 ≡One : ∀ {b : Bin} (o o' : One b) → o ≡ o'
-≡One One.one o2 = {!!}
-≡One (One.sucOne o1) o2 = {!!}
+≡One o1 One.one = {!!}
+≡One One.one (One.sucOne x o2) = {!!}
+≡One (One.sucOne i1 o1) (One.sucOne i2 o2) = {!!}
 
 ¬-One-zero : ¬ (One (Bin.⟨⟩ Bin.O))
 -- ¬-One-zero (() One.withO)
