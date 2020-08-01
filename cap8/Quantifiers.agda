@@ -1,7 +1,7 @@
 module plfa.cap8.Quantifiers where
 
 import Relation.Binary.PropositionalEquality as Eq
-open Eq using (_≡_; refl; cong)
+open Eq using (_≡_; refl; cong; sym)
 open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; _≡⟨_⟩_; _∎)
 open import Data.Nat using (ℕ; zero; suc; _+_; _*_)
 open import Data.Nat.Properties using (+-identityʳ; +-assoc; +-comm)
@@ -324,12 +324,22 @@ One'→One (o withI') with (One'→One o)
 -- Inc-inc-subs : ∀ {b b'} → Inc b b' → b' ≡ inc b
 
 One-head-O : ∀ {b} → One (b Bin.O) → One b
-One-head-OI : ∀ {b} → One (b Bin.O Bin.I) → One b
+One-head-OI : ∀ {b} → One (b Bin.O Bin.I) → One (b Bin.O)
 One-head-II : ∀ {b} → One (b Bin.I Bin.I) → One (b Bin.I)
 
-One-head-O (One.sucOne {b Bin.I} (Inc.inc-I .b (b' Bin.O) x) (One.sucOne x₁ o)) = {!!}
-One-head-O (One.sucOne {.Bin.⟨⟩ Bin.I} (Inc.inc-I .Bin.⟨⟩ (b' Bin.I) x) One.one) = {!!}
-One-head-O (One.sucOne {b Bin.I} (Inc.inc-I .b (b' Bin.I) x) (One.sucOne x₁ o)) = {!!}
+Inc-I-prev-O : ∀ {b b'} → One b → Inc b (b' Bin.I) → b' Bin.O ≡ b
+Inc-I-prev-O (One.sucOne () o) Inc.inc-⟨⟩
+Inc-I-prev-O o (Inc.inc-O _) = refl
+
+One-head-O (One.sucOne {b Bin.I} (Inc.inc-I .b (b' Bin.O) x) (One.sucOne i o)) with sym (Inc-I-prev-O o i)
+One-head-O {_ Bin.O} (One.sucOne {(b Bin.I) Bin.I} (Inc.inc-I .(b Bin.I) .(_ Bin.O) x) (One.sucOne i o)) | refl = {!!}
+One-head-O (One.sucOne {.Bin.⟨⟩ Bin.I} (Inc.inc-I .Bin.⟨⟩ (.Bin.⟨⟩ Bin.I) Inc.inc-⟨⟩) One.one) = One.one
+One-head-O (One.sucOne {b Bin.I} (Inc.inc-I .b (Bin.⟨⟩ Bin.I) x) (One.sucOne i o)) with sym (Inc-I-prev-O o i)
+... | refl = One.sucOne x (One-head-O o)
+One-head-O (One.sucOne {b Bin.I} (Inc.inc-I .b ((b' Bin.O) Bin.I) x) (One.sucOne {b1} i o)) with sym (Inc-I-prev-O o i)
+... | refl = One.sucOne x (One-head-O o)
+One-head-O (One.sucOne {b Bin.I} (Inc.inc-I .b ((b' Bin.I) Bin.I) x) (One.sucOne {b1} i o)) with sym (Inc-I-prev-O o i)
+... | refl = One.sucOne x (One-head-O o)
 
 ≡Inc-Inc : ∀ {b0 b1 b2 b2' : Bin} → Inc b0 b1 → Inc b1 b2 → Inc b1 b2' → b2 ≡ b2'
 ≡Inc-Inc Inc.inc-⟨⟩ (Inc.inc-I .Bin.⟨⟩ .(Bin.⟨⟩ Bin.I) Inc.inc-⟨⟩) (Inc.inc-I .Bin.⟨⟩ .(Bin.⟨⟩ Bin.I) Inc.inc-⟨⟩) = refl
