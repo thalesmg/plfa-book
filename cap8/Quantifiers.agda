@@ -324,15 +324,15 @@ One'→One (o withI') with (One'→One o)
 -- Inc-inc-subs : ∀ {b b'} → Inc b b' → b' ≡ inc b
 
 One-head-O : ∀ {b} → One (b Bin.O) → One b
-One-head-OI : ∀ {b} → One (b Bin.O Bin.I) → One (b Bin.O)
-One-head-II : ∀ {b} → One (b Bin.I Bin.I) → One (b Bin.I)
+-- One-head-OI : ∀ {b} → One (b Bin.O Bin.I) → One (b Bin.O)
+-- One-head-II : ∀ {b} → One (b Bin.I Bin.I) → One (b Bin.I)
 
 Inc-I-prev-O : ∀ {b b'} → One b → Inc b (b' Bin.I) → b' Bin.O ≡ b
 Inc-I-prev-O (One.sucOne () o) Inc.inc-⟨⟩
 Inc-I-prev-O o (Inc.inc-O _) = refl
 
 One-head-O (One.sucOne {b Bin.I} (Inc.inc-I .b (b' Bin.O) x) (One.sucOne i o)) with sym (Inc-I-prev-O o i)
-One-head-O {_ Bin.O} (One.sucOne {(b Bin.I) Bin.I} (Inc.inc-I .(b Bin.I) .(_ Bin.O) x) (One.sucOne i o)) | refl = {!!}
+One-head-O {_ Bin.O} (One.sucOne {(b Bin.I) Bin.I} (Inc.inc-I .(b Bin.I) .(_ Bin.O) (Inc.inc-I .b _ x)) (One.sucOne i o)) | refl = {!!}
 One-head-O (One.sucOne {.Bin.⟨⟩ Bin.I} (Inc.inc-I .Bin.⟨⟩ (.Bin.⟨⟩ Bin.I) Inc.inc-⟨⟩) One.one) = One.one
 One-head-O (One.sucOne {b Bin.I} (Inc.inc-I .b (Bin.⟨⟩ Bin.I) x) (One.sucOne i o)) with sym (Inc-I-prev-O o i)
 ... | refl = One.sucOne x (One-head-O o)
@@ -340,6 +340,9 @@ One-head-O (One.sucOne {b Bin.I} (Inc.inc-I .b ((b' Bin.O) Bin.I) x) (One.sucOne
 ... | refl = One.sucOne x (One-head-O o)
 One-head-O (One.sucOne {b Bin.I} (Inc.inc-I .b ((b' Bin.I) Bin.I) x) (One.sucOne {b1} i o)) with sym (Inc-I-prev-O o i)
 ... | refl = One.sucOne x (One-head-O o)
+
+One-head-II : ∀ {b} → One (b Bin.I Bin.I) → One (b Bin.I)
+One-head-II (One.sucOne (Inc.inc-O .(_ Bin.I)) o) = {!!}
 
 ≡Inc-Inc : ∀ {b0 b1 b2 b2' : Bin} → Inc b0 b1 → Inc b1 b2 → Inc b1 b2' → b2 ≡ b2'
 ≡Inc-Inc Inc.inc-⟨⟩ (Inc.inc-I .Bin.⟨⟩ .(Bin.⟨⟩ Bin.I) Inc.inc-⟨⟩) (Inc.inc-I .Bin.⟨⟩ .(Bin.⟨⟩ Bin.I) Inc.inc-⟨⟩) = refl
@@ -356,13 +359,29 @@ One-head-O (One.sucOne {b Bin.I} (Inc.inc-I .b ((b' Bin.I) Bin.I) x) (One.sucOne
 
 ≡Inc : ∀ {b0 b1 bi : Bin} → One b0 → Inc b0 bi → One b1 → Inc b1 bi → b0 ≡ b1
 ≡Inc (One.sucOne x o0) i0 (One.sucOne () o1) Inc.inc-⟨⟩
-≡Inc o0 i0 o1 (Inc.inc-O b) = {!!}
-≡Inc o0 (Inc.inc-I b0 .b' i0) o1 (Inc.inc-I b b' i1) = {!!}
+≡Inc (One.sucOne () o0) Inc.inc-⟨⟩ o1 (Inc.inc-O .Bin.⟨⟩)
+≡Inc o0 (Inc.inc-O .b) o1 (Inc.inc-O b) = refl
+≡Inc o0 (Inc.inc-I b0 .(Bin.⟨⟩ Bin.I) i0) o1 (Inc.inc-I .Bin.⟨⟩ .(Bin.⟨⟩ Bin.I) Inc.inc-⟨⟩) = {!!}
+≡Inc o0 (Inc.inc-I b0 .(b Bin.I) i0) o1 (Inc.inc-I .(b Bin.O) .(b Bin.I) (Inc.inc-O b)) = {!!}
+≡Inc o0 (Inc.inc-I .(b₁ Bin.I) .(b' Bin.O) (Inc.inc-I b₁ .b' i0)) o1 (Inc.inc-I .(b Bin.I) .(b' Bin.O) (Inc.inc-I b b' i1)) = {!!}
+
+unique-Inc : ∀ {b0 b1 : Bin} → Inc b0 b1 ≡ Inc b0 b1
+unique-Inc {b0} {b1} = refl
+
+unique-Inc' : ∀ {b0 b1 : Bin} → (i i' : Inc b0 b1) → i ≡ i'
+unique-Inc' Inc.inc-⟨⟩ Inc.inc-⟨⟩ = refl
+unique-Inc' (Inc.inc-O .b) (Inc.inc-O b) = refl
+unique-Inc' (Inc.inc-I .b .b' i) (Inc.inc-I b b' i') = cong (Inc.inc-I b b') (unique-Inc' i i')
 
 ≡One : ∀ {b : Bin} (o o' : One b) → o ≡ o'
-≡One o1 One.one = {!!}
-≡One One.one (One.sucOne x o2) = {!!}
-≡One (One.sucOne i1 o1) (One.sucOne i2 o2) = {!!}
+≡One One.one One.one = refl
+≡One (One.sucOne Inc.inc-⟨⟩ (One.sucOne () o1)) One.one
+≡One (One.sucOne (Inc.inc-O .Bin.⟨⟩) (One.sucOne (Inc.inc-I b .Bin.⟨⟩ ()) o1)) One.one
+≡One One.one (One.sucOne Inc.inc-⟨⟩ (One.sucOne () o2))
+≡One One.one (One.sucOne (Inc.inc-O .Bin.⟨⟩) (One.sucOne (Inc.inc-I b .Bin.⟨⟩ ()) o2))
+≡One (One.sucOne {b0} {b1} i1 o1) (One.sucOne {b} {.b1} i2 o2) with ≡Inc o1 i1 o2 i2
+... | refl with unique-Inc' i1 i2
+... | refl = cong (One.sucOne i1) (≡One o1 o2)
 
 ¬-One-zero : ¬ (One (Bin.⟨⟩ Bin.O))
 -- ¬-One-zero (() One.withO)
